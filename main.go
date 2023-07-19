@@ -2,31 +2,18 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
+
+	"github.com/antchfx/htmlquery"
 )
 
 func main() {
 	log.Println("Start")
-	response, error := http.Get("https://kids.yahoo.co.jp/today/")
-	defer response.Body.Close()
-	if error != nil {
-		log.Println("Access failed.")
-		return
-	}
+	doc, _ := htmlquery.LoadURL("https://kids.yahoo.co.jp/today/")
 
-	if response.StatusCode != 200 {
-		log.Fatalf("Access failed. StatusCode: %d\n", response.StatusCode)
-		return
-	}
+	titleElement := htmlquery.FindOne(doc, "//*[@id=\"dateDtl\"]/dt/span")
+	fmt.Printf("タイトル: %s\n", htmlquery.InnerText(titleElement))
 
-	log.Println("Success access.")
-
-	bytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatalln(err.Error())
-		return
-	}
-	fmt.Println(string(bytes))
+	descriptionElement := htmlquery.FindOne(doc, "//*[@id=\"dateDtl\"]/dd")
+	fmt.Printf("本文: %s\n", htmlquery.InnerText(descriptionElement))
 }
