@@ -6,10 +6,11 @@ import (
 	"os"
 
 	"github.com/antchfx/htmlquery"
+	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/slack-go/slack"
 )
 
-func main() {
+func Handler() {
 	log.Println("Start")
 	token := os.Getenv("SLACK_BOT_TOKEN")
 	channel := os.Getenv("SLACK_CHANNEL")
@@ -26,7 +27,7 @@ func main() {
 	descriptionElement := htmlquery.FindOne(doc, "//*[@id=\"dateDtl\"]/dd")
 	fmt.Printf("本文: %s\n", htmlquery.InnerText(descriptionElement))
 
-	message := "✨✨✨ 今日は何の日？ ✨✨✨\n\n**" + htmlquery.InnerText(titleElement) + "**\n\n" + htmlquery.InnerText(descriptionElement)
+	message := "✨✨✨ 今日は何の日？ ✨✨✨\n\n" + htmlquery.InnerText(titleElement) + "\n\n" + htmlquery.InnerText(descriptionElement)
 	client := slack.New(token)
 
 	// MsgOptionText() の第二引数に true を設定すると特殊文字をエスケープする
@@ -36,4 +37,8 @@ func main() {
 	}
 
 	log.Println("Finish")
+}
+
+func main() {
+	lambda.Start(Handler)
 }
