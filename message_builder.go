@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/antchfx/htmlquery"
 )
 
-func main() {
-	log.Println("Start")
+func buildMessage() string {
 
 	doc, _ := htmlquery.LoadURL("https://kids.yahoo.co.jp/today/")
 
@@ -25,7 +23,7 @@ func main() {
 	message := fmt.Sprintf("✨✨✨ 今日は何の日？ ✨✨✨\n\n%s\n\n%s\n\n🎂🎂🎂 今日が誕生日の有名人 🎂🎂🎂\n\n%s\n", htmlquery.InnerText(titleElement), htmlquery.InnerText(descriptionElement), people)
 	fmt.Println(message)
 
-	log.Println("Finish")
+	return message
 }
 
 func parsePeople() string {
