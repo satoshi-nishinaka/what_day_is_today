@@ -36,10 +36,10 @@ func buildMessage() string {
 
 	doc, _ := htmlquery.LoadURL("https://kids.yahoo.co.jp/today/")
 
-	titleElement := htmlquery.FindOne(doc, "//*[@id=\"dateDtl\"]/dt/span")
+	titleElement := htmlquery.FindOne(doc, "//*[@id=\"__next\"]/div/main/div[3]/div[1]/div[2]/div/h2")
 	fmt.Printf("タイトル: %s\n", htmlquery.InnerText(titleElement))
 
-	descriptionElement := htmlquery.FindOne(doc, "//*[@id=\"dateDtl\"]/dd")
+	descriptionElement := htmlquery.FindOne(doc, "//*[@id=\"__next\"]/div/main/div[3]/div[1]/div[2]/p")
 	fmt.Printf("本文: %s\n", htmlquery.InnerText(descriptionElement))
 
 	people := parsePeople()
@@ -54,14 +54,18 @@ func buildMessage() string {
 func parsePeople() string {
 	doc, _ := htmlquery.LoadURL("https://kids.yahoo.co.jp/today/")
 
-	personAndYear, _ := htmlquery.QueryAll(doc, "//*[@id=\"birthdayDtl\"]/li")
+	name, _ := htmlquery.QueryAll(doc, "//*[@id=\"mod_birthdays\"]/dl/dt")
+	birthdayAndJob, _ := htmlquery.QueryAll(doc, "//*[@id=\"mod_birthdays\"]/dl/dd")
 
 	var list []string
-	for _, n := range personAndYear {
-		nameElement := htmlquery.FindOne(n, "b")
-		yearElement := htmlquery.FindOne(n, "span")
+	for i, n := range name {
+		nameElement := htmlquery.InnerText(n)
+		birthdayElement := htmlquery.InnerText(birthdayAndJob[i*2])
+		jobElement := htmlquery.InnerText(birthdayAndJob[i*2+1])
+		fmt.Println(birthdayElement, jobElement)
 
-		text := fmt.Sprintf("%s %s", strings.TrimSpace(htmlquery.InnerText(nameElement)), strings.TrimSpace(htmlquery.InnerText(yearElement)))
+		text := fmt.Sprintf("%s (%s %s)", nameElement, birthdayElement, jobElement)
+
 		list = append(list, text)
 	}
 
@@ -70,4 +74,5 @@ func parsePeople() string {
 
 func main() {
 	lambda.Start(Handler)
+	// fmt.Println(buildMessage())
 }
